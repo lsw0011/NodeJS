@@ -22,7 +22,12 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use((req,res, next) => {
+    Cart.get((cart) => {
+        req.cart = new Cart(cart.price, cart.products);
+        next();
+    })
+})
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);

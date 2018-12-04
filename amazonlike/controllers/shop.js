@@ -1,6 +1,5 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
-const ob
 
 exports.getProducts = (req, res, next) => {
   Product.getAll((products) => {
@@ -35,25 +34,25 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-
-  (cartProducts => {
+  const ids = [];
+  req.cart.products.forEach(prod => {
+    ids.push(prod[0]);
+  })
+  Product.getMany(ids, cartProducts => {
+    console.log(cartProducts[0])
     res.render('shop/cart', {
       path: '/cart',
       pageTitle: 'Your Cart',
-      products: cartProducts
+      products: cartProducts,
+      cart: req.cart
     })
   })
+}
 
-  
-       
-};
 
 exports.postCart = (req, res, next) => {
-  Cart.get((cart) => {
-    newCart = new Cart(cart.price, cart.products);
-    newCart.addProduct(req.body.productId);
-    newCart.update(() => console.log("success"))
-  })
+  req.cart.addProduct(req.body.productId);
+  req.cart.update(() => console.log("success"));
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {

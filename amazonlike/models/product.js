@@ -22,6 +22,16 @@ class Product {
         callback(docs)
       })
   }
+  static getMany(ids, callback) {
+    let db = getDb();
+    let objectids = [];
+
+    ids.forEach(id => { objectids.push(new ObjectID(id)) });    
+    db.collection('products').find({ _id: { $in: objectids }  } )
+      .toArray((err, prods) => {
+        callback(prods)
+      })
+  }
   static get(prodId, callback) {
     const db = getDb();
     db.collection('products').findOne({ _id: new ObjectID(prodId) })

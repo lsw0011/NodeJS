@@ -8,10 +8,21 @@
             <%= products.id %>
             <% if (products.length > 0) { %>
                 <ul class="cart__item-list">
-                    <% products.forEach(p => { %>
+                    <% products.forEach(p => { %> 
                         <li class="cart__item">
-                            <h1><%= p.title %></h1>
-                            <h2>Quantity: <%= p.cartitem.quantity %></h2>
+                            <% try { %>
+                                <h1><%= p.name %></h1>
+                            <% } catch(err) { %>
+                                <% console.log("fuck") %>
+                                <h1><%= p.name %></h1>
+                            <% } %>
+                            <h2>Quantity: 
+                                <% cart.products.forEach(item => { %>
+                                    <% if(item[0] == p._id){ %>
+                                        <%= item[1] %>
+                                    <%    }     %>
+                                <%  })   %>                             
+                            </h2>
                             <form action="/cart-delete-item" method="POST">
                                 <input type="hidden" value="<%= p.id %>" name="productId">
                                 <button class="btn danger" type="submit">Delete</button>

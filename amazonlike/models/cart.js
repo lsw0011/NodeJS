@@ -9,21 +9,22 @@ class Cart {
     if (this.products.length != 0){
       let flag = true;
         this.products.forEach(prod => {
-          const existingProd = prod[0];
+          const existingProd = prod._id;
           if(product == existingProd){
-            prod[1] += 1;
+            prod.quantity += 1;
             flag = false;
           }
       })
       if (flag) {
-        this.products.push([product, 1])
+        this.products.push({_id: product, quantity: 1})
       }
     } else {
-      this.products.push([product, 1])
+      this.products.push({_id: product, quantity: 1})
     }
   }
 
   update(callback){
+    console.log('fnucks')
     let db = getDb()
     db.collection('carts')
       .updateOne({}, {$set: this})
@@ -31,9 +32,13 @@ class Cart {
   }
 
   deleteItem(prodId, callback){
+    console.log("fnuck")
     this.products.forEach((prod, index) => {
-      if(prod == prodId){
+      console.log(prod, prodId)
+      if(prod._id == prodId){
+        console.log('fnuck')
         this.products.splice(index, 1);
+        this.update(callback);
       }
     })
   }

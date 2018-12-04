@@ -18,13 +18,13 @@
                             <% } %>
                             <h2>Quantity: 
                                 <% cart.products.forEach(item => { %>
-                                    <% if(item[0] == p._id){ %>
-                                        <%= item[1] %>
+                                    <% if(item._id == p._id){ %>
+                                        <%= item.quantity %>
                                     <%    }     %>
                                 <%  })   %>                             
                             </h2>
                             <form action="/cart-delete-item" method="POST">
-                                <input type="hidden" value="<%= p.id %>" name="productId">
+                                <input type="hidden" value="<%= p._id %>" name="productId">
                                 <button class="btn danger" type="submit">Delete</button>
                             </form>
                         </li>

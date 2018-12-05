@@ -44,12 +44,15 @@ class Product {
         callback(docs)
       })
   }
-  static getMany(ids, callback) {
+  static getMany(items, callback) {
     let db = getDb();
     let objectids = [];
-
-    ids.forEach(id => { objectids.push(new ObjectID(id)) });    
-    db.collection('products').find({ _id: { $in: objectids }  } )
+    
+    
+    db.collection('products').aggregate([
+        { $lookup: {from: "products", localField: 'cart.items.product', foreignField: '_id', as: 'products' } },
+        { $match: {_id: this._id}}
+      ] )
       .toArray((err, prods) => {
         callback(prods)
       })

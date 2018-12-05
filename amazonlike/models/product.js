@@ -2,11 +2,13 @@ const getDb = require('../util/database').getDb;
 var ObjectID = require('mongodb').ObjectID;
 
 class Product {
-  constructor(name, price, description, imageUrl){     
+  constructor(_id, name, price, description, imageUrl, userid){
+    this._id = _id;
     this.name = name;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
+    this.userid = userid;
   }
 
   save() {
@@ -15,7 +17,9 @@ class Product {
       .then((prod) => {return prod})
       .catch(err => console.log(err));
     }
+
   
+
   static delete(prodId, callback) {
     const db = getDb();
     db.collection('products').deleteOne({_id: new ObjectID(prodId)})
@@ -27,7 +31,7 @@ class Product {
   update(prodId, newValues, callback) {
     const db = getDb();
     console.log(newValues)
-    db.collection('products').updateOne({_id: new ObjectID(prodId)}, { $set: newValues } )
+    db.collection('products').updateOne({_id: new ObjectID(prodId)}, { $addToSet: {cart: newValues} } )
       .then(() => {
         callback();
       })
@@ -50,13 +54,19 @@ class Product {
         callback(prods)
       })
   }
-  static get(prodId, callback) {
+  static findById(prodId, callback) {
     const db = getDb();
+    console.log(prodId)
     db.collection('products').findOne({ _id: new ObjectID(prodId) })
       .then(product => {
-        const newProduct = new Product(product.name, product.price, product.description, product.imageUrl)
-        callback(newProduct)
-      })
+        const newProduct = new Product(product._id, 
+          product.name, 
+          product.price, 
+          product.description, 
+          product.imageUrl,
+          product.userId )
+          callback(newProduct)
+    })
   }
 }
 

@@ -24,7 +24,6 @@ class Cart {
   }
 
   update(callback){
-    console.log('fnucks')
     let db = getDb()
     db.collection('carts')
       .updateOne({}, {$set: this})
@@ -32,11 +31,8 @@ class Cart {
   }
 
   deleteItem(prodId, callback){
-    console.log("fnuck")
     this.products.forEach((prod, index) => {
-      console.log(prod, prodId)
       if(prod._id == prodId){
-        console.log('fnuck')
         this.products.splice(index, 1);
         this.update(callback);
       }

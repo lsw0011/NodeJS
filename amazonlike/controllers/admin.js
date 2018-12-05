@@ -12,10 +12,8 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
   
-  const prod = new Product(title, imageUrl, price, description)
-  prod.get()
+  const prod = new Product(null, title, imageUrl, price, description, req.user._id)
   prod.save()
-  prod.get()
   res.redirect('/')
 
   // req.user.createProduct({

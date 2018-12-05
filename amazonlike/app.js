@@ -8,6 +8,7 @@ const errorController = require('./controllers/error');
 const mongoConnect = require('./util/database').mongoConnect;
 
 const Cart = require('./models/cart')
+const User = require('./models/user')
 
 
 
@@ -27,6 +28,14 @@ app.use((req,res, next) => {
         req.cart = new Cart(cart.price, cart.products);
         next();
     })
+});
+
+app.use((req, res, next) => {
+    User.find('lukewesterfield')
+        .then(user => {
+            req.user = new User(user._id, user.name, user.email, user.cart);
+            next();
+        })
 })
 
 app.use('/admin', adminRoutes);
@@ -36,5 +45,5 @@ app.use(errorController.get404);
 
 
 mongoConnect(() => {
-    app.listen(3000)
+    app.listen(3001)
 })

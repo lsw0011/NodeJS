@@ -2,8 +2,8 @@ const getDb = require('../util/database').getDb;
 var ObjectID = require('mongodb').ObjectID;
 
 class Product {
-  constructor(title, price, description, imageUrl){     
-    this.title = title;
+  constructor(name, price, description, imageUrl){     
+    this.name = name;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
@@ -14,6 +14,24 @@ class Product {
     db.collection('products').insertOne(this)
       .then((prod) => {return prod})
       .catch(err => console.log(err));
+    }
+  
+  static delete(prodId, callback) {
+    const db = getDb();
+    db.collection('products').deleteOne({_id: new ObjectID(prodId)})
+      .then(() => {
+        callback()
+      })
+  }
+
+  update(prodId, newValues, callback) {
+    const db = getDb();
+    console.log(newValues)
+    db.collection('products').updateOne({_id: new ObjectID(prodId)}, { $set: newValues } )
+      .then(() => {
+        callback();
+      })
+
   }
   static getAll(callback) {
     const db = getDb();
@@ -36,7 +54,8 @@ class Product {
     const db = getDb();
     db.collection('products').findOne({ _id: new ObjectID(prodId) })
       .then(product => {
-        callback(product)
+        const newProduct = new Product(product.name, product.price, product.description, product.imageUrl)
+        callback(newProduct)
       })
   }
 }

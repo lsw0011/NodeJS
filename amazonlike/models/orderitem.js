@@ -1,8 +1,7 @@
-const Sequelize = require('sequelize');
+const getDb = require('../util/database').getDb;
+var ObjectID = require('mongodb').ObjectID;
 
-const sequelize = require('../util/database');
-
-const OrderItem = sequelize.define('orderitem', {
+const Order  = sequelize.define('orderitem', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,

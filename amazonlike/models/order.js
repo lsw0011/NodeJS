@@ -1,13 +1,17 @@
-const Sequelize = require('sequelize');
+const getDb = require('../util/database').getDb;
+var ObjectID = require('mongodb').ObjectID;
+class Order {
+  constructor(user, products){
+    this.user = user;
+    this.products = [];
 
-const sequelize = require('../util/database');
+  }
+  
+  addProduct(products){
+    
+    
+  }
 
-const Order = sequelize.define('order', {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    }
-});
+} 
 
 module.exports = Order;

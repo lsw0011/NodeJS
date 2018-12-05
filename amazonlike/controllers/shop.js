@@ -17,20 +17,20 @@ exports.getProduct = (req, res, next) => {
   Product.get(prodId, (product) => {
     res.render('shop/product-detail', {
       product: product,
-      pageTitle: product.title,
+      pageTitle: product.name,
       path: '/products'
     });
   })
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.findAll((products) => {
+  Product.getAll((products) => {
     res.render('shop/index', {
       prods: products,
       pageTitle: 'All Products',
       path: '/products'
     });
-  }).catch((err) => console.log(err))
+  })
 };
 
 exports.getCart = (req, res, next) => {

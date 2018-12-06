@@ -7,7 +7,6 @@ const errorController = require('./controllers/error');
 
 const mongoConnect = require('./util/database').mongoConnect;
 
-const Cart = require('./models/cart')
 const User = require('./models/user')
 
 
@@ -23,12 +22,7 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use((req,res, next) => {
-    Cart.get((cart) => {
-        req.cart = new Cart(cart.price, cart.products);
-        next();
-    })
-});
+
 
 app.use((req, res, next) => {
     User.find('lukewesterfield')

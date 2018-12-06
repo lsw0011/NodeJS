@@ -1,5 +1,4 @@
 const Product = require('../models/product');
-const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
   Product.getAll((products) => {
@@ -34,12 +33,11 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   const ids = [];
-  req.user.getCartProducts((user) => {
-    
+  req.user.getCartProducts((items) => {
     res.render('shop/cart', {
       path: '/cart',
       pageTitle: 'Your Cart',
-      products: user.cart.items
+      products: items
     })
   })
 }

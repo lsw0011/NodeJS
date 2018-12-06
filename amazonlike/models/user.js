@@ -50,27 +50,43 @@ class User {
 
     getCartProducts(callback){
         let db = getDb()
-        db.collection('users').aggregate([
-                {$match: {name: 'lukewesterfield'}},
-                {$unwind: "$cart.items"},
-                { $lookup: {from: "products", localField: 'cart.items.product', foreignField: '_id', as: 'productInfo' } },
-                {$project: {_id: '$_id', name: '$name', email: '$email', cart: {items: [
-                    {product: "$productInfo", quantity: "$cart.items.quantity"}
-                ]}}},
-                {$group: {_id: {_id: '$_id', name: '$name', email: '$email'}, items: {$push: '$cart.items'}}},
-                {$project: {_id: '$_id._id', name: '$_id.name', email: '$_id.email', cart: {items: '$items'} }}
-          ] ).toArray((err, array) =>{
-            const holder = array[0];
-            const user = new User(holder._id, holder.name, holder.email, holder.cart);
-            const flattenedCart = []
-            user.cart.items.forEach((item) => {
-                item = item[0]
-                item.product = item.product[0]
-                flattenedCart.push(item)
+        let ids = this.cart.items.map(item => {
+            return new ObjectID(item.product);
+        })
+        db.collection('products').find({_id: {$in: ids}})
+            .toArray((err, docs) => {
+                docs.forEach((doc, index) => {
+                    this.cart.items.forEach(item => {
+                        if(doc._id.toString() == item.product.toString()){
+                            doc.quantity = item.quantity;
+                        }
+                    })
+                })
+                callback(docs)
             })
-            user.cart.items = flattenedCart
-            callback(user)
-          })
+        
+        // db.collection('products').find({$in: {}})
+        // db.collection('users').aggregate([
+        //         {$match: {name: 'lukewesterfield'}},
+        //         {$unwind: "$cart.items"},
+        //         { $lookup: {from: "products", localField: 'cart.items.product', foreignField: '_id', as: 'productInfo' } },
+        //         {$project: {_id: '$_id', name: '$name', email: '$email', cart: {items: [
+        //             {product: "$productInfo", quantity: "$cart.items.quantity"}
+        //         ]}}},
+        //         {$group: {_id: {_id: '$_id', name: '$name', email: '$email'}, items: {$push: '$cart.items'}}},
+        //         {$project: {_id: '$_id._id', name: '$_id.name', email: '$_id.email', cart: {items: '$items'} }}
+        //   ] ).toArray((err, array) =>{
+        //     const holder = array[0];
+        //     const user = new User(holder._id, holder.name, holder.email, holder.cart);
+        //     const flattenedCart = []
+        //     user.cart.items.forEach((item) => {
+        //         item = item[0]
+        //         item.product = item.product[0]
+        //         flattenedCart.push(item)
+        //     })
+        //         user.cart.items = flattenedCart
+        //         callback(user)
+        //   })
         }
     
     deleteFromCart(prodId, callback){

@@ -32,7 +32,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  const ids = [];
+  console.log(req.user.cart)
   req.user.getCartProducts((items) => {
     res.render('shop/cart', {
       path: '/cart',

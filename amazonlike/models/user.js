@@ -17,35 +17,20 @@ class User {
             })
     }
     addToCart(product, callback) {
-        // const cartProduct = this.cart.items.findIndex(cp => {
-        //     return product._id === cp._id
-        // });
-        const updatedCart = {items: [{product: product._id, quantity: 1}]};
-        
+
         const db = getDb();
         let existingItem = false;
-        return db.collection('users').findOne(
-            { _id: new ObjectID(this._id) })
-            .then(user => {
-                
-                user.cart.items.forEach(item => {
-                    if(item.product.equals(product._id)){
-                        item.quantity += 1;
-                        existingItem = true;
-                    }
-                })
-                if(existingItem){
-                    return user;
-                }else{
-                    user.cart.items.push({product: product._id, quantity: 1});
-                    return user;
-                }
-          
-            }).then(user => {
-                return db.collection('users')
-                    .updateOne({_id: new ObjectID(this._id)}, {$set: {cart: user.cart}})
-            })
-
+        this.cart.items.forEach(item => {
+            if(item.product.equals(product._id)){
+                item.quantity += 1;
+                existingItem = true;
+            }
+        })
+        if(!existingItem){
+            this.cart.items.push({product: product._id, quantity: 1});
+        }
+        return db.collection('users')
+            .updateOne({_id: new ObjectID(this._id)}, {$set: {cart: this.cart}})
     }
 
     getCartProducts(callback){
@@ -53,7 +38,8 @@ class User {
         let ids = this.cart.items.map(item => {
             return new ObjectID(item.product);
         })
-        db.collection('products').find({_id: {$in: ids}})
+        db.collection('products')
+            .find({_id: {$in: ids}})
             .toArray((err, docs) => {
                 docs.forEach((doc, index) => {
                     this.cart.items.forEach(item => {
@@ -64,30 +50,9 @@ class User {
                 })
                 callback(docs)
             })
-        
-        // db.collection('products').find({$in: {}})
-        // db.collection('users').aggregate([
-        //         {$match: {name: 'lukewesterfield'}},
-        //         {$unwind: "$cart.items"},
-        //         { $lookup: {from: "products", localField: 'cart.items.product', foreignField: '_id', as: 'productInfo' } },
-        //         {$project: {_id: '$_id', name: '$name', email: '$email', cart: {items: [
-        //             {product: "$productInfo", quantity: "$cart.items.quantity"}
-        //         ]}}},
-        //         {$group: {_id: {_id: '$_id', name: '$name', email: '$email'}, items: {$push: '$cart.items'}}},
-        //         {$project: {_id: '$_id._id', name: '$_id.name', email: '$_id.email', cart: {items: '$items'} }}
-        //   ] ).toArray((err, array) =>{
-        //     const holder = array[0];
-        //     const user = new User(holder._id, holder.name, holder.email, holder.cart);
-        //     const flattenedCart = []
-        //     user.cart.items.forEach((item) => {
-        //         item = item[0]
-        //         item.product = item.product[0]
-        //         flattenedCart.push(item)
-        //     })
-        //         user.cart.items = flattenedCart
-        //         callback(user)
-        //   })
-        }
+
+
+    }
     
     deleteFromCart(prodId, callback){
         this.cart.items.forEach((item,index) => {
@@ -99,8 +64,23 @@ class User {
         }
     )
         
-    }
+}
 
+    addOrder(callback) {
+        let db = getDb()
+        let ids = this.cart.items.map(item => {
+            return new ObjectID(item.product);
+        })
+        this.getCartProducts(items => {
+            db.collection('orders').insertOne({items: items, userId: this._id})
+                .then(() => {
+                    this.cart = [];
+                    this.save(callback);
+                })
+        });
+        
+
+    }
     static find(username) {
         let db = getDb();
 

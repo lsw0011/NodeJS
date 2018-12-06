@@ -29,7 +29,6 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getEditProduct = (req, res, next) => {
-  console.log('fuck')
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect('/');
@@ -52,7 +51,6 @@ exports.postEditProduct = (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
   const newValues = {name: updatedName, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDesc};
-  console.log(prodId)
   Product.get(prodId, (product) => {
     product.update(prodId, newValues, () => {
       res.redirect('/products');
@@ -72,9 +70,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
+  console.log(prodId)
 
-  console.log(req.body.productId)
-  console.log('fuck')
   Product.delete(prodId,() => {
       res.redirect('/admin/products');
     })

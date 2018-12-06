@@ -11,7 +11,7 @@ class User {
 
     save(callback) {
         let db = getDb();
-        db.collection('users').insertOne(this)
+        db.collection('users').updateOne({_id: this._id}, {$set: this}, {upsert: true})
             .then((user) => {
                 callback();
             })
@@ -71,7 +71,19 @@ class User {
             user.cart.items = flattenedCart
             callback(user)
           })
-        }       
+        }
+    
+    deleteFromCart(prodId, callback){
+        this.cart.items.forEach((item,index) => {
+            if(item.product.equals(new ObjectID(prodId))){
+                this.cart.items.splice(index, 1);
+                this.save(callback)
+            }
+           
+        }
+    )
+        
+    }
 
     static find(username) {
         let db = getDb();

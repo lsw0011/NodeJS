@@ -13,7 +13,6 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  console.log(prodId)
   Product.get(prodId, (product) => {
     res.render('shop/product-detail', {
       product: product,
@@ -56,8 +55,11 @@ exports.postCart = (req, res, next) => {
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
+  
   const prodId = req.body.productId;
-  console.log(req.user) 
+  req.user.deleteFromCart(prodId,() => {
+    res.redirect('/cart')
+  })
 };
 
 // exports.postOrder = (req, res, next) => {

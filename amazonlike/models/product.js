@@ -30,7 +30,6 @@ class Product {
 
   update(prodId, newValues, callback) {
     const db = getDb();
-    console.log(newValues)
     db.collection('products').updateOne({_id: new ObjectID(prodId)}, { $addToSet: {cart: newValues} } )
       .then(() => {
         callback();
@@ -48,18 +47,15 @@ class Product {
     let db = getDb();
     let objectids = [];
     
+
     
-    db.collection('products').aggregate([
-        { $lookup: {from: "products", localField: 'cart.items.product', foreignField: '_id', as: 'products' } },
-        { $match: {_id: this._id}}
-      ] )
+    db.collection('products').find({ _id: { $in: objectids }  } )
       .toArray((err, prods) => {
         callback(prods)
       })
   }
   static findById(prodId, callback) {
     const db = getDb();
-    console.log(prodId)
     db.collection('products').findOne({ _id: new ObjectID(prodId) })
       .then(product => {
         const newProduct = new Product(product._id, 

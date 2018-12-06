@@ -60,38 +60,19 @@ exports.postCartDeleteProduct = (req, res, next) => {
   })
 };
 
-// exports.postOrder = (req, res, next) => {
-//   req.user.getCart()
-//     .then(cart => {
-//       return cart.getProducts();
-//     }).then(products => {
-//       return req.user
-//         .createOrder()
-//         .then(order => {
-//           order.addProducts(products.map(product => {
-//             product.orderItem = { quantity: product.cartitem.quantity };
-//             return product;
-//            }))
-//         })
-//         .catch(err => console.log(err))
+exports.postOrder = (req, res, next) => {
+  req.user.addOrder(() => {
+    res.redirect('/cart')
+  })
+};
 
-//      }).then(() => {
-//        req.cart.destroy('products')
-//      }).then((result) => {
-//         res.redirect('/orders');
-//     }).catch(err => console.log(err))
-// };
-
-// exports.getOrders = (req, res, next) => {
-//   req.user.getOrders({ include: ['products'] })
-//     .then(orders => {
-//       console.log(orders[1])
-//       res.render('shop/orders', {
-//         path: '/orders',
-//         pageTitle: 'Your Orders',
-//         orders: orders
-//       });
-//     })
+exports.getOrders = (req, res, next) => {
+  req.user.getOrders((orders) => {
+    res.render('shop/orders', {
+      path: '/orders',
+      pageTitle: 'Your Orders',
+      orders: orders
+    })  })
   
-// };
+};
 

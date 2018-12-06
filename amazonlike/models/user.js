@@ -35,6 +35,7 @@ class User {
 
     getCartProducts(callback){
         let db = getDb()
+        console.log(this.cart)
         let ids = this.cart.items.map(item => {
             return new ObjectID(item.product);
         })
@@ -53,6 +54,7 @@ class User {
 
 
     }
+
     
     deleteFromCart(prodId, callback){
         this.cart.items.forEach((item,index) => {
@@ -68,19 +70,25 @@ class User {
 
     addOrder(callback) {
         let db = getDb()
-        let ids = this.cart.items.map(item => {
-            return new ObjectID(item.product);
-        })
+        
         this.getCartProducts(items => {
             db.collection('orders').insertOne({items: items, userId: this._id})
                 .then(() => {
-                    this.cart = [];
+                    this.cart.items = [];
                     this.save(callback);
                 })
         });
-        
-
     }
+
+    getOrders(callback) {
+        let db = getDb()
+        db.collection('orders')
+            .find({userId: this._id})
+            .toArray((err, docs) => {
+                callback(docs)
+            })
+    }
+
     static find(username) {
         let db = getDb();
 

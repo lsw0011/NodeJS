@@ -67,13 +67,14 @@ exports.postEditProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-  Product.getAll((products) => {
-    res.render('admin/products', {
+  Product.find()
+    .then(products => {
+      res.render('shop/product-list', {
       prods: products,
-      pageTitle: 'Admin Products',
-      path: '/admin/products'
-    });
-  })
+      pageTitle: 'All Products',
+      path: '/products'
+    })
+  });
 }
 
 exports.postDeleteProduct = (req, res, next) => {

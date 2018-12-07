@@ -1,25 +1,29 @@
 const Product = require('../models/product');
 
+
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
-      console.log(products);
       res.render('shop/product-list', {
       prods: products,
       pageTitle: 'All Products',
       path: '/products'
-    });
+    })
   });
 };
 
 exports.getProduct = (req, res, next) => {
-  const prodId = req.params.productId;
-  Product.get(prodId, (product) => {
-    res.render('shop/product-detail', {
-      product: product,
-      pageTitle: product.name,
-      path: '/products'
-    });
+  Product.find({_id: req.params.productId}, (err, result) => {
+    console.log(result)
+    if(result != undefined){
+      const product = result[0]
+      res.render('shop/product-detail', {
+        product: product,
+        pageTitle: product.title,
+        path: '/products'
+      })    
+    }
+    next()
   })
 };
 
@@ -43,7 +47,6 @@ exports.getCart = (req, res, next) => {
     })
   })
 }
-
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;

@@ -26,15 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-app.use((req, res, next) => {
-    // User.find('lukewesterfield')
-    //     .then(user => {
-    //         req.user = new User(user._id, user.name, user.email, user.cart);
-    //         next();
-    //     })
-    next()
-})
-
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
@@ -46,7 +37,7 @@ mongoose
         'mongodb+srv://luke:ouwOaTJhmBu4W4wm@cluster-71glu.mongodb.net/test?retryWrites=true'
         )
     .then(result => {
-        app.listen(3000)
+        app.listen(3003)
     }).catch(err => {
         console.log(err)
     })

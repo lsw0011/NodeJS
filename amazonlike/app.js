@@ -2,6 +2,8 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
 
 const errorController = require('./controllers/error');
 
@@ -25,11 +27,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use((req, res, next) => {
-    User.find('lukewesterfield')
-        .then(user => {
-            req.user = new User(user._id, user.name, user.email, user.cart);
-            next();
-        })
+    // User.find('lukewesterfield')
+    //     .then(user => {
+    //         req.user = new User(user._id, user.name, user.email, user.cart);
+    //         next();
+    //     })
+    next()
 })
 
 app.use('/admin', adminRoutes);
@@ -38,6 +41,12 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 
-mongoConnect(() => {
-    app.listen(3001)
-})
+mongoose
+    .connect(
+        'mongodb+srv://luke:ouwOaTJhmBu4W4wm@cluster-71glu.mongodb.net/test?retryWrites=true'
+        )
+    .then(result => {
+        app.listen(3000)
+    }).catch(err => {
+        console.log(err)
+    })

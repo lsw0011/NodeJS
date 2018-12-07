@@ -43,7 +43,7 @@ mongoose
         'mongodb+srv://luke:ouwOaTJhmBu4W4wm@cluster-71glu.mongodb.net/test?retryWrites=true'
         )
     .then(result => {
-        app.listen(3001)
+        app.listen(8000)
     }).catch(err => {
         console.log(err)
     })

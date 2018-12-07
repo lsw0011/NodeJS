@@ -14,12 +14,27 @@ const userSchema = new Schema({
     cart: {
         items: [
             {
-                productId: { type: Schema.Types.ObjectId, required: true},
+                productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true},
                 quantity: { type: Number, required: true} 
             }
         ]
     }
 });
+
+userSchema.methods.addToCart = function() {
+    const db = getDb();
+        let existingItem = false;
+        this.cart.items.forEach(item => {
+            if(item.product.toString() == product._id.toString()){
+                item.quantity += 1;
+                existingItem = true;
+            }
+        })
+        if(!existingItem){
+            this.cart.items.push({product: product._id, quantity: 1});
+        }
+        return this.save()
+    }
 
 module.exports = mongoose.model('User', userSchema);
 

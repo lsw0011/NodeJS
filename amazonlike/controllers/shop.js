@@ -13,19 +13,18 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getProduct = (req, res, next) => {
-  Product.find({_id: req.params.productId}, (err, result) => {
-    console.log(result)
-    if(result != undefined){
-      const product = result[0]
-      res.render('shop/product-detail', {
-        product: product,
-        pageTitle: product.title,
-        path: '/products'
-      })    
-    }
-    next()
-  })
-};
+  Product.
+   findById(req.params.productId)
+    .populate('userId')
+    .exec( ( err, product ) => {
+      if( err ) return next( err );
+        res.render('shop/product-detail', {
+          product: product,
+          pageTitle: product.title,
+          path: '/products'
+   });
+  });
+}
 
 exports.getIndex = (req, res, next) => {
   Product.getAll((products) => {

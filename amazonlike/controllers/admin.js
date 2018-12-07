@@ -15,7 +15,8 @@ exports.postAddProduct = (req, res, next) => {
     title: title, 
     imageUrl: imageUrl, 
     price: price, 
-    description: description 
+    description: description,
+    userId: req.user._id
   });
   product
     .save()
@@ -42,34 +43,40 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.get(prodId, product => {
-      res.render('admin/edit-product', {
-        pageTitle: 'Edit Product',
-        path: '/admin/edit-product',
-        editing: editMode,
-        product: product,
-        productId: prodId
-      });
+  Product.
+   findById(prodId)
+    .populate('userId')
+    .exec( ( err, product ) => {
+     if( err ) return next( err );
+     res.render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: editMode,
+      product: product,
+      productId: prodId
     });
-  }
+   });
+  };
+  
 exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  const updatedName = req.body.name;
+  const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const newValues = {name: updatedName, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDesc};
-  Product.get(prodId, (product) => {
-    product.update(prodId, newValues, () => {
-      res.redirect('/products');
-    })
+  Product.findOneAndUpdate({_id: prodId}, {title: updatedTitle, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDesc})
+   .exec((err) => {
+    if( err ) return next( err );
+    res.redirect('/admin/products')
   });
 }
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    .populate('userId')
     .then(products => {
-      res.render('shop/product-list', {
+      console.log(products)
+      res.render('admin/products', {
       prods: products,
       pageTitle: 'All Products',
       path: '/products'

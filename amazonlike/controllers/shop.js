@@ -15,7 +15,6 @@ exports.getProducts = (req, res, next) => {
 exports.getProduct = (req, res, next) => {
   Product.
    findById(req.params.productId)
-    .populate('userId')
     .exec( ( err, product ) => {
       if( err ) return next( err );
         res.render('shop/product-detail', {
@@ -49,9 +48,10 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findById(prodId, product => {
-      req.user.addToCart(product)
-        .then(res.redirect('/cart'))
+  Product.findById(prodId)
+  .then(product => {
+    req.user.addToCart(product)
+      .then(res.redirect('/cart'))
     })
   
 };

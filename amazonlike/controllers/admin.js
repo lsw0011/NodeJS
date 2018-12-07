@@ -45,7 +45,6 @@ exports.getEditProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.
    findById(prodId)
-    .populate('userId')
     .exec( ( err, product ) => {
      if( err ) return next( err );
      res.render('admin/edit-product', {

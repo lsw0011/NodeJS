@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 
+const Order = require('../models/order')
+
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -15,7 +17,7 @@ const userSchema = new Schema({
         items: 
         [
             { 
-                productId: {type: Schema.Types.ObjectId, ref: 'User', required: true},
+                productId: {type: Schema.Types.ObjectId, ref: 'Product', required: true},
                 quantity: {type: Number, required: true}
             }
         ]
@@ -23,7 +25,6 @@ const userSchema = new Schema({
 })
 
 userSchema.methods.addToCart = function (product) {
-    console.log(this)
     const cartProductIndex = this.cart.items.findIndex(cp => {
         return cp.productId.toString() === product._id.toString()
     })
@@ -47,6 +48,28 @@ userSchema.methods.addToCart = function (product) {
 
 }
 
+userSchema.methods.delete = function (productId) {
+    const prodIndex = this.cart.items.findIndex(item => {
+        if(productId == item.productId){
+            return productId;
+        }
+    })
+    this.cart.items.splice(prodIndex, 1);
+    return this.save()
+}
+
+userSchema.methods.addToOrder = function () {
+    console.log('gofuckyourselfmason')
+    order = new Order({
+        items: this.cart.items,
+        userId: this._id
+    })
+    this.cart.items = []
+    return this.save()
+        .then(() => {
+            order.save()
+        })
+}
 module.exports = mongoose.model('User', userSchema)
 // const getDb = require('../util/database').getDb
 // const ObjectID = require('mongodb').ObjectID

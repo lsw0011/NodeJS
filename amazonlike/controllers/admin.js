@@ -74,7 +74,6 @@ exports.getProducts = (req, res, next) => {
   Product.find()
     .populate('userId')
     .then(products => {
-      console.log(products)
       res.render('admin/products', {
       prods: products,
       pageTitle: 'All Products',
@@ -85,9 +84,9 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log(prodId)
-
-  Product.delete(prodId,() => {
+  req.user.delete(prodId)
+  .then(() => {
+      
       res.redirect('/admin/products');
     })
   };

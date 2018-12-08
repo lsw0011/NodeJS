@@ -10,6 +10,7 @@
             <% } else { %>
                 <ul class="orders">
                     <% orders.forEach(order => { %>
+                        <% console.log(order) %>
                         <li class="orders__item">
                             <h1>Order - # <%= order._id %></h1>
                             <ul class="orders__products">

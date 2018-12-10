@@ -11,6 +11,15 @@ exports.getLogin = (req, res, next) => {
     })
 }
 
+exports.getSignup = (req, res, next) => {
+    res.render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      isAuthenticated: false
+    });
+  };
+  
+
 exports.postLogin = (req, res, next) => {
     console.log(req.body.email)
     User.find({email: req.body.email})
@@ -23,6 +32,8 @@ exports.postLogin = (req, res, next) => {
     req.session.isAuthenticated = true;
     
 }
+
+exports.postSignup = (req, res, next) => {};
 
 exports.postLogout = (req, res, next) => {
     req.session.destroy(() => {

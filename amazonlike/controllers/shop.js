@@ -40,7 +40,8 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-        isAuthenticated: req.session.isAuthenticated
+        isAuthenticated: req.session.isAuthenticated,
+        csrfToken: req.csrfToken()
       });
     })
     .catch(err => {
@@ -62,10 +63,10 @@ exports.getCart = (req, res, next) => {
         isAuthenticated: req.session.isAuthenticated
       });
     })
-    .catch(err => console.log(err));
 };
 
 exports.postCart = (req, res, next) => {
+  console.log('fuckassnigga')
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then(product => {

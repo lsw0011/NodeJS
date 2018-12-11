@@ -59,11 +59,14 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+
   const prodId = req.body.productId;
+
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+
 
   Product.findById(prodId)
     .then(product => {
@@ -92,6 +95,7 @@ exports.getProducts = (req, res, next) => {
         path: '/admin/products',
         isAuthenticated: req.session.isAuthenticated
           });
+
     })
     .catch(err => console.log(err));
 };
@@ -101,6 +105,7 @@ exports.postDeleteProduct = (req, res, next) => {
   Product.findByIdAndRemove(prodId)
     .then(() => {
       console.log('DESTROYED PRODUCT');
+
       res.redirect('/admin/products');
     })
     .catch(err => console.log(err));

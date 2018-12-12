@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
+const { validationResult } = require('express-validator/check')
 
 const transporter = nodemailer.createTransport(sendgridTransport({
     auth: {
@@ -34,7 +35,8 @@ exports.getSignup = (req, res, next) => {
     res.render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
-      errorMessage: message
+      errorMessage: message,
+      oldInput: { email: '', password: '', confirmPassword: ''}
     });
   };
   
@@ -42,7 +44,15 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    console.log(password)
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        console.log(errors.array())
+        return res.status(422).render('auth/login',{
+            path: '/login',
+            pageTitle: 'login',
+            errorMessage: errors.array()[0].msg
+        });
+    }
     User.findOne({email: email})
     .then(user => {
         console.log(user)
@@ -83,6 +93,17 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword; 
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        console.log(errors.array())
+        return res.status(422).render('auth/signup',{
+            path: '/signup',
+            pageTitle: 'Signup',
+            errorMessage: errors.array(),
+            oldInput: { email: email, password: password, confirmPassword: confirmPassword }
+
+        });
+    }
     User.findOne({email: email})
         .then(userDoc => {
             if(userDoc){

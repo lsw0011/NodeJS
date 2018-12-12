@@ -75,7 +75,6 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-sessions
   .connect(
       MONGODB_URI
     )

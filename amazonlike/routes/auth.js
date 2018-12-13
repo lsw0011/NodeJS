@@ -12,12 +12,14 @@ router.post('/login',
     [ 
         body('email')
             .isEmail()
-            .withMessage('Not valid email'),
+            .withMessage('Not valid email')
+            .normalizeEmail(),
         body('password')
             .isAlphanumeric()
             .isLength({min: 5})
             .withMessage('Password is not valid')
-    ], 
+            .trim()
+    ],
     authController.postLogin
 );
 
@@ -35,16 +37,19 @@ router.post('/signup',
                             return Promise.reject('There exists an account associated with that email address.')
                         }
                     })
-            }),
+            })
+            .normalizeEmail(),
         body('password', 'Please enter a password with only numbers and text and at least 5 characters long')
             .isLength({min: 5})
-            .isAlphanumeric(),
+            .isAlphanumeric()
+            .trim(),
         body('confirmPassword').custom((value, { req }) => {
             if (value !== req.body.password){
                 throw new Error('Passwords have to match');
             }
             return true; 
         })
+        .trim()
     ],
     authController.postSignup
 );

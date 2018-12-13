@@ -21,7 +21,9 @@ exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
         pageTitle: 'Login',
-        errorMessage: message
+        errorMessage: message,
+        oldInput: { email: '', password: ''}, 
+        validationErrors: []
     })
 }
 
@@ -36,7 +38,8 @@ exports.getSignup = (req, res, next) => {
       path: '/signup',
       pageTitle: 'Signup',
       errorMessage: message,
-      oldInput: { email: '', password: '', confirmPassword: ''}
+      oldInput: { email: '', password: '', confirmPassword: ''},
+      validationErrors: []
     });
   };
   
@@ -50,19 +53,19 @@ exports.postLogin = (req, res, next) => {
         return res.status(422).render('auth/login',{
             path: '/login',
             pageTitle: 'login',
-            errorMessage: errors.array()[0].msg
+            errorMessage: errors.array()[0].msg,
+            oldInput: { email: email, password: password},
+            validationErrors: errors.array()
         });
     }
     User.findOne({email: email})
     .then(user => {
-        console.log(user)
         if (!user){
             req.flash('error', 'Invalid email or password.')
             return res.redirect('/login');
         }
         bcrypt.compare(password, user.password)
             .then(match => {
-                console.log(match)
                 if (match) {
                     req.session.user = user;
                     req.session.isAuthenticated = true;
@@ -95,12 +98,12 @@ exports.postSignup = (req, res, next) => {
     const confirmPassword = req.body.confirmPassword; 
     const errors = validationResult(req);
     if(!errors.isEmpty()){
-        console.log(errors.array())
         return res.status(422).render('auth/signup',{
             path: '/signup',
             pageTitle: 'Signup',
             errorMessage: errors.array(),
-            oldInput: { email: email, password: password, confirmPassword: confirmPassword }
+            oldInput: { email: email, password: password, confirmPassword: confirmPassword },
+            validationErrors: errors.array()
 
         });
     }

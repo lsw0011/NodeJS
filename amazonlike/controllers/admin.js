@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator/check');
+const mongoose = require('mongoose');
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -40,6 +41,7 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   const product = new Product({
+    _id: new mongoose.Types.ObjectId('5c11a0a2c033d93ce9e2e342'),
     title: title,
     price: price,
     description: description,
@@ -54,7 +56,7 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect('/admin/products');
     })
     .catch(err => {
-      console.log(err);;
+      res.status(500).render('500', { pageTitle: 'Page Not Found', path: '/500' });
     });
 };
 

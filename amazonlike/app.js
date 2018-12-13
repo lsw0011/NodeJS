@@ -47,6 +47,12 @@ app.use(flash())
 app.use(csrfProtection);
 
 app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isAuthenticated;
+  res.locals.csrfToken = req.csrfToken(); 
+  next(); 
+})
+
+app.use((req, res, next) => {
   if(!req.session.user) return next()
   User.findById(req.session.user._id)
     .then(user => {
@@ -57,24 +63,31 @@ app.use((req, res, next) => {
       next();
     })
     .catch(err => {
-      throw new Error(err);
+      next(err)
     });
 });
 
-
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isAuthenticated;
-  res.locals.csrfToken = req.csrfToken(); 
-  next(); 
-})
 
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-app.use(errorController.get404);
 app.get('/500', errorController.get500);
+
+app.use(errorController.get404);
+
+
+app.use((error, req, res, next) => {
+  // res.redirect('/500')
+  console.log(error)
+  console.log('fuck')
+  res.status(500).render('500', {
+    pageTitle: 'Error!',
+    path:'/500',
+    isAuthenticated: req.session.isAuthenticated
+  })    
+})
 
 mongoose
   .connect(
@@ -82,7 +95,7 @@ mongoose
     )
   .then(result => {
     
-    app.listen(4000);
+    app.listen(3000);
   })
   .catch(err => {
     console.log(err);

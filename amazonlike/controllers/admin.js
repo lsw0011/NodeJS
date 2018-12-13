@@ -41,7 +41,7 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   const product = new Product({
-    _id: new mongoose.Types.ObjectId('5c11a0a2c033d93ce9e2e342'),
+    //_id: new mongoose.Types.ObjectId('5c11a0a2c033d93ce9e2e342'),
     title: title,
     price: price,
     description: description,
@@ -56,7 +56,9 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect('/admin/products');
     })
     .catch(err => {
-      res.status(500).render('500', { pageTitle: 'Page Not Found', path: '/500' });
+      const error = new Error(err)
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -81,7 +83,11 @@ exports.getEditProduct = (req, res, next) => {
         product: product
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -110,6 +116,7 @@ exports.postEditProduct = (req, res, next) => {
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array()
     })
+  
   }
 
   Product.findById(prodId)
@@ -126,6 +133,11 @@ exports.postEditProduct = (req, res, next) => {
         console.log('UPDATED PRODUCT!');
         res.redirect('/admin/products');
       });
+    })
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500;
+      return next(error);
     })
   
 };
@@ -144,7 +156,11 @@ exports.getProducts = (req, res, next) => {
           });
 
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -153,5 +169,9 @@ exports.postDeleteProduct = (req, res, next) => {
     .then(() => {
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatusCode = 500;
+      return next(error);
+    })
 };

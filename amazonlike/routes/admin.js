@@ -49,9 +49,6 @@ router.post('/edit-product', isAuth,
             .isLength({min: 3})
             .withMessage('Must be at least 3 characters.')
             .trim(),
-        body('imageUrl')
-            .isURL()
-            .withMessage('That aint no fucking url I ever seen'),
         body('price')
             .isFloat()
             .withMessage('Must be a float'),

@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator/check');
-const mongoose = require('mongoose');
+const fileHelper = require('../util/file')
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
@@ -13,16 +14,35 @@ exports.getAddProduct = (req, res, next) => {
     hasError: false,
     errorMessage: null,
     validationErrors: []
-  });
+  });  
 };
 
 exports.postAddProduct = (req, res, next) => {
+
+  console.log("Oh my...")
+
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
-  const errors = validationResult(req);
+  if (!image) {
+    return res.status(422).render('admin/edit-product',{
+      pageTitle: 'Add Product',
+      path: '/admin/edit-product',
+      editing: false,
+      hasError: true, 
+      product: {
+        title: title,
+        price: price,
+        description: description
+      },
+      errorMessage: 'Attached file in not an image',
+      validationErrors: []
+    })
+  }
 
+  const errors = validationResult(req);
+  
   if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product',{
       pageTitle: 'Add Product',
@@ -31,7 +51,6 @@ exports.postAddProduct = (req, res, next) => {
       hasError: true, 
       product: {
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description
       },
@@ -39,6 +58,8 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array()
     })
   }
+
+  const imageUrl = image.path
 
   const product = new Product({
     //_id: new mongoose.Types.ObjectId('5c11a0a2c033d93ce9e2e342'),
@@ -96,10 +117,9 @@ exports.postEditProduct = (req, res, next) => {
 
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDesc = req.body.description;
   const errors = validationResult(req)
-  console.log('fuck')
   if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product',{
       pageTitle: 'Edit Product',
@@ -108,7 +128,6 @@ exports.postEditProduct = (req, res, next) => {
       hasError: true, 
       product: {
         title: updatedTitle,
-        imageUrl: updatedImageUrl,
         price: updatedPrice,
         description: updatedDesc,
         _id: prodId
@@ -127,7 +146,10 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
-      product.imageUrl = updatedImageUrl;
+      if (image) {
+        fileHelper.deleteFile(product.imageUrl);
+        product.imageUrl = image.path;
+      }
       product.save()
         .then(result => {
         console.log('UPDATED PRODUCT!');
@@ -165,7 +187,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteOne({_id: prodId, userId: req.user._id})
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error('Product not found.'));
+      }
+      fileHelper.deleteFile(product.imageUrl);
+      return Product.deleteOne({_id: prodId, userId: req.user._id})
+    })
     .then(() => {
       res.redirect('/admin/products');
     })

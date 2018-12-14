@@ -10,21 +10,35 @@ const User = require('../models/user')
 const ITEMS_PER_PAGE = 2;
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
+  let page = Number(req.query.page);
+  if(!page){
+    page = 1;
+  }
+  let totalItems;
+  Product.find().countDocuments((err, numProducts) => { 
+    totalItems = numProducts
+    
+    return Product.find()
+    .skip((page - 1) * ITEMS_PER_PAGE)
+    .limit(ITEMS_PER_PAGE)
     .then(products => {
-      console.log(products);
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
-        isAuthenticated: req.session.isAuthenticated
-        
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)        
       });
     })
     .catch(err => {
       console.log(err);
     });
-};
+  });
+}
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
@@ -101,7 +115,6 @@ exports.postCart = (req, res, next) => {
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  console.log(req.session.user)
   req.user.removeFromCart(prodId)
     .then(result => {
       res.redirect('/cart');
@@ -166,7 +179,6 @@ exports.getInvoice = (req, res, next) => {
     const pdfDoc = new PDFDocument();
     pdfDoc.pipe(fs.createWriteStream(invoicePath));
     pdfDoc.pipe(res);
-    console.log('fuck')
     pdfDoc.fontSize(26).text('Invoice', {
       underline: true
     })

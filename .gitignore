@@ -1,4 +1,5 @@
 node_modules
 images
+amazonlike/data/keys.js
 amazonlike/models/Untitled-2.js
 amazonlike/util/flatten.js

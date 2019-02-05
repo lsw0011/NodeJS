@@ -39,13 +39,14 @@
 
 .cell-background{
     background-color: #bbada0;
+    border: 1px solid #bbada0;
+    border-radius: 3px;
     padding:0;
     margin:0;
 }
 .cell {
     position: relative;
     transform: translate(0,0);
-    transition: transform 0.5s; 
     border-radius: 3px;
     display: flex; 
     justify-content: center;
@@ -54,6 +55,51 @@
     height:100%;
 }
 
-.transition{
-    transition: transform 0.5s;
+.not-moving{
+    z-index:1;
+}
+
+.merged{
+    z-index: 3;
+    transition: transform 0.1s ease-in;
+}
+.active{
+    z-index: 2;
+    transition: transform 0.1s ease-in;
+}
+
+.inactive{
+    z-index: 0;
+    transition: transform 0s;
+}
+
+.pop {
+    animation: pop 0.2s 0s 1;
+}
+
+.phase-in{
+    animation: phase-in 0.1;
+}
+
+@keyframes phase-in {
+    0% {
+        transform: scale(0.5)
+    } 
+    100% {
+        transform: scale(1)
+    }
+}
+
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+
 }

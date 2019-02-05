@@ -37,6 +37,7 @@ generateRandom = function (grid) {
     })
     var randPos = open[Math.floor(Math.random() * open.length)]
     grid[randPos].value = 2;
+    grid[randPos].new = true;
 }
 
 init = function(grid){
@@ -120,19 +121,25 @@ moveValues = function (dir, grid) {
 
     }
 }
+
+checkForMove = function (grid) {
+    for(var i = 0; i < 16; i++){
+        if(grid[i].initialPos != i && grid[i].initialPos != null || grid[i].hasMerged){
+            return true
+        }
+    }
+    return false
+}
+
 update = function (grid) {
     grid.forEach((element, index)=> {
-        cssClass = '.e' + index;
-        htmlnode = document.querySelector(cssClass);
-        htmlnode.classList.add('active')
-        document.querySelector(cssClass).transform = 'none';
+        cssClass = document.querySelector('.e' + index);
         if(element.value != 0){
-            document.querySelector(cssClass).textContent = element.value;
+            cssClass.textContent = element.value;
         }else{
-            document.querySelector(cssClass).textContent = '';
+            cssClass.textContent = '';
         }
-        document.querySelector(cssClass).style.backgroundColor = colors[element.value];
-        document.querySelector(cssClass).classList.remove('active')
+        cssClass.style.backgroundColor = colors[element.value];
     })
 }
 placeNum = function (grid, pos) {
@@ -142,45 +149,94 @@ reset = function (grid){
     grid.forEach((element) =>{
         element.hasMerged = false;
         element.mergedPos = false;
+        
     })
-
 }
-moveCSSElements = function (grid) {
+
+resetCSS = function (grid){
     grid.forEach((element, index) => {
-        if(element.value != 0) {
-            if(!element.mergedPos){
-                diff = index - element.initialPos
+        document.querySelector('.e'+index).classList.remove('inactive');
+        document.querySelector('.e'+index).classList.remove('active');
+        document.querySelector('.e'+index).classList.remove('merged');
+        document.querySelector('.e'+index).style.animation = 'none';
+    })
+}
+ 
+transform = function (grid){
+    grid.forEach((element, index) => {
+        cssElement =document.querySelector('.e'+element.initialPos);
+        if(element.value != 0){
+            cssElement.classList.add('active');
+            diff = index-element.initialPos;
+            if(element.hasMerged != true) {
                 if(diff%4 == 0 && diff != 0){
-                    document.querySelector('.e'+element.initialPos).style.zIndex = '1';
-                    document.querySelector('.e'+element.initialPos).style.transform = 'translateY('+(diff/4*8.25)+'rem)';
-                }else if(diff!=0){
-                    document.querySelector('.e'+element.initialPos).style.zIndex = '1';
-                    document.querySelector('.e'+element.initialPos).style.transform = 'translateX('+(diff*8.25)+'rem)';
+                    cssElement.style.transform = 'translateY(' + 8.25 * diff / 4 + 'rem)';                    
+                }else if(diff != 0){
+                    cssElement.style.transform = 'translateX(' + 8.25 * diff + 'rem)'
                 }
             }else{
-                totalDiff = index - element.initialPos;
-                mergedDiff = index - element.mergedPos;
-                console.log(1)
-                if(totalDiff%4 == 0 && mergedDiff%4 ==0){
-                    document.querySelector('.e'+element.initialPos).style.zIndex = '2';
-                    document.querySelector('.e'+element.initialPos).style.transform = 'translateY('+(totalDiff/4*8.25)+'rem)';
-                    document.querySelector('.e'+element.mergedPos).style.transform = 'translateY(' + (mergedDiff/4*8.25)+'rem)';
-                }else {
-                    document.querySelector('.e'+element.initialPos).style.zIndex = '2';
-                    document.querySelector('.e'+element.initialPos).style.transform = 'translateX('+(totalDiff*8.25)+'rem)';
-                    document.querySelector('.e'+element.mergedPos).style.transform = 'translateX('+(mergedDiff*8.25)+'rem)';
+                mergedElement = document.querySelector('.e'+element.mergedPos);
+                mergedDiff = index-element.mergedPos
+                if(mergedDiff < 0){
+                    cssElement.classList.add('active');
+                    mergedElement.classList.add('merged');
+                }else{
+                    mergedElement.classList.add('merged');
+                    cssElement.classList.add('active')
+                }
+                if(diff%4 == 0 && mergedDiff%4 == 0){
+                    cssElement.style.transform = 'translateY(' + 8.25 * diff / 4 + 'rem)';                    
+                    mergedElement.style.transform = 'translateY(' + 8.25 * mergedDiff/4 + 'rem)'
+                }else{
+                    cssElement.style.transform = 'translateX(' + 8.25 * diff + 'rem)'
+                    mergedElement.style.transform = 'translateX(' + 8.25 * mergedDiff + 'rem)'
                 }
             }
+            mergedDiff = index-element.mergedPos;
+        }else{
+            cssClass.classList.add('not-moving')
         }
     })
 }
+
+transformBack = function (grid){
+    grid.forEach((element, index) => {
+        cssElement = document.querySelector('.e'+index);
+        cssElement.classList.add('inactive');
+        cssElement.style.transform = "translateY(0)"
+    })
+}
+
+popMerges = function (grid){
+    grid.forEach((element, index) => {
+        if(element.hasMerged){
+            document.querySelector('.e'+index).style.animation = 'pop 0.2s'
+        }else if (element.new){
+            delete element.new;
+            document.querySelector('.e'+index).style.animation = 'phase-in 0.1s'
+        }
+    })
+}
+
 game = function (grid){
-    moveCSSElements(grid)
+    transform(grid);
     setTimeout(() => {
-        //generateRandom(grid);
+        console.log(checkForMove(grid))
+        if(checkForMove(grid)){
+            generateRandom(grid);
+        };
         update(grid);
-        //reset(grid);
-    }, 500);
+        transformBack(grid);
+        popMerges(grid);
+        //console.log(, grid)
+        setTimeout(()=>{
+            reset(grid);
+            resetCSS(grid);
+        }, 200)
+        
+    }, 100)
+
+    
     
 }
 
